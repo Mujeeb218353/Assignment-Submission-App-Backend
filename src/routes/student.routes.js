@@ -37,7 +37,8 @@ router.route('/getCourses').get(getCourse)
 // secure routes
 router.route('/logout').post(verifyStudentJWT, logoutStudent)
 router.route('/getCurrentStudent').get(verifyStudentJWT, getCurrentStudent)
-router.route('/refreshStudentAccessToken').post(verifyStudentJWT, refreshStudentAccessToken)
+
+router.route('/refreshStudentAccessToken').post(refreshStudentAccessToken)
 
 router.route('/enrollStudent').post(verifyStudentJWT, enrollStudent)
 router.route('/getStudentClass').get(verifyStudentJWT, getStudentClass)

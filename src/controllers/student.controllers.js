@@ -245,7 +245,7 @@ const refreshStudentAccessToken = asyncHandler(async (req, res) => {
   if (!incomingRefreshToken) {
     throw new apiError(401, "unauthorized request");
   }
-
+  console.log(incomingRefreshToken);
   try {
     const decodedToken = jwt.verify(
       incomingRefreshToken,
@@ -264,6 +264,8 @@ const refreshStudentAccessToken = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
       student._id
     );
+
+    console.log(accessToken, refreshToken);
 
     return res
       .status(200)
