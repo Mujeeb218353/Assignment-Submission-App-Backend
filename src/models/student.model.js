@@ -114,7 +114,7 @@ studentSchema.methods.generateAccessToken = function () {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: '1m',
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
         }
     );
 };

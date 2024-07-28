@@ -238,14 +238,12 @@ const getCurrentStudent = asyncHandler(async (req, res) => {
 });
 
 const refreshStudentAccessToken = asyncHandler(async (req, res) => {
-  const incomingRefreshToken =
-    req.cookies.refreshToken ||
-    req.body.refreshToken ||
-    req.header("Authorization")?.replace("Bearer ", "");
+  const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken || req.header("Authorization")?.replace("Bearer ", "");
+
   if (!incomingRefreshToken) {
     throw new apiError(401, "unauthorized request");
   }
-  console.log(incomingRefreshToken);
+  
   try {
     const decodedToken = jwt.verify(
       incomingRefreshToken,
