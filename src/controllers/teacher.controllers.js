@@ -185,9 +185,15 @@ const logoutTeacher = asyncHandler(async (req, res) => {
 });
 
 const getCurrentTeacher = asyncHandler(async (req, res) => {
+  const user = await Teacher.findById(req.teacher?._id)
+    .populate("city", "cityName")
+    .populate("campus", "name")
+    .populate("course", "name")
+    .populate("instructorOfClass", "name")
+  .select("-password -refreshToken");
   res
     .status(200)
-    .json(new apiResponse(200, req.teacher, "teacher fetched successfully"));
+    .json(new apiResponse(200, user, "teacher fetched successfully"));
 });
 
 const refreshTeacherAccessToken = asyncHandler(async (req, res) => {

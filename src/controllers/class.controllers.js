@@ -106,7 +106,7 @@ const addClass = asyncHandler(async (req, res) => {
         throw new apiError(500, "Something went wrong while creating class")
     }
 
-    teacher.instructorOfClass = newClass._id
+    teacher.instructorOfClass.push(newClass._id)
     const savedTeacher = await teacher.save({ validateBeforeSave: false })
 
     if (!savedTeacher) {
