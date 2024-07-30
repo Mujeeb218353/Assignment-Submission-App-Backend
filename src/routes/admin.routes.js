@@ -5,6 +5,8 @@ import {
     logoutAdmin,
     getCurrentAdmin,
     refreshAdminAccessToken,
+    updateProfilePicture,
+  updateProfileDetails,
 } from '../controllers/admin.controllers.js'
 import {
     getCity, 
@@ -38,7 +40,10 @@ router.route('/login').post(loginAdmin)
 
 router.route('/logout').post(verifyAdminJWT, logoutAdmin)
 router.route('/getCurrentAdmin').get(verifyAdminJWT, getCurrentAdmin)
-router.route('/refreshAdminAccessToken').post(verifyAdminJWT, refreshAdminAccessToken)
+router.route('/refreshAdminAccessToken').post(refreshAdminAccessToken)
+
+router.route('/updateAdminProfilePicture').put(verifyAdminJWT, upload.single('profile'), updateProfilePicture)
+router.route('/updateAdminProfileDetails').put(verifyAdminJWT, updateProfileDetails)
 
 router.route('/addCity').post(verifyAdminJWT, addCity)
 router.route('/getCities').get(verifyAdminJWT, getCity)

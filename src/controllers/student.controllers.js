@@ -7,7 +7,6 @@ import {
 } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 
 const cookieOptions = {
   httpOnly: true,
@@ -284,10 +283,125 @@ const refreshStudentAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
+const updateProfilePicture = asyncHandler(async (req, res) => {
+
+  const profileLocalPath = req.file?.path;
+
+  if (!profileLocalPath) {
+    throw new apiError(400, "Profile image is required");
+  }
+
+
+  const profile = await uploadOnCloudinary(profileLocalPath);
+
+  const previousProfile = await Student.findById(req.student._id).select("profile")
+
+  if (previousProfile?.profile) {
+    await deleteFromCloudinary(previousProfile?.profile);
+  }
+
+  if (!profile) {
+    throw new apiError(400, "Profile image upload failed");
+  }
+
+  const updatedProfile = await Student.findByIdAndUpdate(
+    req.student._id,
+    {
+      profile: profile.secure_url,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedProfile) {
+    throw new apiError(400, "Profile update failed");
+  }
+
+  res.status(200).json(new apiResponse(200, updatedProfile, "Profile updated successfully"));
+
+});
+
+const updateProfileDetails = asyncHandler(async (req, res) => {
+  
+  const { fullName, email, phone, gender, username, lastQualification, CNIC, address, dob } = req.body;
+
+  if (
+    [fullName, email, phone, gender, username, lastQualification, CNIC, address, dob].some(
+      (field) => String(field).trim() === ""
+    )
+  ) {
+    throw new apiError(400, "All fields are required");
+  }
+
+  const existedUsername = await Student.findOne({ username });
+
+  if (existedUsername) {
+    if (existedUsername?._id.toString() !== req.student?._id.toString()) {
+      throw new apiError(409, "Username already exists");
+    }
+  }
+
+  const existedEmail = await Student.findOne({ email });
+
+  if (existedEmail) {
+    if (existedEmail?._id.toString() !== req.student?._id.toString()) {
+      throw new apiError(409, "Email already exists");
+    }
+  }
+
+  const existedCNIC = await Student.findOne({ CNIC });
+
+  if (existedCNIC) {
+    if (existedCNIC?._id.toString() !== req.student?._id.toString()) {
+      throw new apiError(409, "CNIC already exists");
+    }
+  }
+
+  const updatedProfileDetails = await Student.findByIdAndUpdate(
+    req.student._id,
+    {
+      fullName,
+      email,
+      phone,
+      gender,
+      username,
+      lastQualification,
+      CNIC,
+      address,
+      dob
+    },
+    {
+      new: true,
+    }
+  )
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate({
+    path: "enrolledInClass",
+    select: "batch name",
+    populate: {
+      path: "teacher",
+      select: "fullName",
+    },
+  })
+  .select("-password -refreshToken");
+
+  if (!updatedProfileDetails) {
+    throw new apiError(400, "Profile update failed");
+  }
+
+  res.status(200).json(new apiResponse(200, updatedProfileDetails, "Profile updated successfully"));
+
+});
+
 export {
   registerStudent,
   loginStudent,
   logoutStudent,
   getCurrentStudent,
   refreshStudentAccessToken,
+  updateProfilePicture,
+  updateProfileDetails,
 };

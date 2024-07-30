@@ -227,10 +227,121 @@ const refreshAdminAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
+const updateProfilePicture = asyncHandler(async (req, res) => {
+  const profileLocalPath = req.file?.path;
+
+  if (!profileLocalPath) {
+    throw new apiError(400, "Profile image is required");
+  }
+
+  const profile = await uploadOnCloudinary(profileLocalPath);
+
+  const previousProfile = await Admin.findById(req.admin._id).select(
+    "profile"
+  );
+
+  if (previousProfile?.profile) {
+    await deleteFromCloudinary(previousProfile?.profile);
+  }
+
+  if (!profile) {
+    throw new apiError(400, "Profile image upload failed");
+  }
+
+  const updatedProfile = await Admin.findByIdAndUpdate(
+    req.admin._id,
+    {
+      profile: profile.secure_url,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedProfile) {
+    throw new apiError(400, "Profile update failed");
+  }
+
+  res
+    .status(200)
+    .json(new apiResponse(200, updatedProfile, "Profile updated successfully"));
+});
+
+const updateProfileDetails = asyncHandler(async (req, res) => {
+  const {
+    fullName,
+    email,
+    phone,
+    gender,
+    username,
+  } = req.body;
+
+  if (
+    [
+      fullName,
+      email,
+      phone,
+      gender,
+      username,
+    ].some((field) => String(field).trim() === "")
+  ) {
+    throw new apiError(400, "All fields are required");
+  }
+
+  const existedUsername = await Admin.findOne({ username });
+
+  if (existedUsername) {
+    if (existedUsername?._id.toString() !== req.admin?._id.toString()) {
+      throw new apiError(409, "Username already exists");
+    }
+  }
+
+  const existedEmail = await Admin.findOne({ email });
+
+  if (existedEmail) {
+    if (existedEmail?._id.toString() !== req.admin?._id.toString()) {
+      throw new apiError(409, "Email already exists");
+    }
+  }
+
+  const updatedProfileDetails = await Admin.findByIdAndUpdate(
+    req.admin._id,
+    {
+      fullName,
+      email,
+      phone,
+      gender,
+      username,
+    },
+    {
+      new: true,
+    }
+  )
+    .populate("city", "cityName")
+    .populate("campus", "name")
+    .select("-password -refreshToken");
+
+  if (!updatedProfileDetails) {
+    throw new apiError(400, "Profile update failed");
+  }
+
+  res
+    .status(200)
+    .json(
+      new apiResponse(
+        200,
+        updatedProfileDetails,
+        "Profile updated successfully"
+      )
+    );
+});
+
 export {
   registerAdmin,
   loginAdmin,
   logoutAdmin,
   getCurrentAdmin,
   refreshAdminAccessToken,
+  updateProfilePicture,
+  updateProfileDetails,
 };

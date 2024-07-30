@@ -8,7 +8,6 @@ import {
   deleteFromCloudinary,
 } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 
 const cookieOptions = {
   httpOnly: true,
@@ -189,8 +188,8 @@ const getCurrentTeacher = asyncHandler(async (req, res) => {
     .populate("city", "cityName")
     .populate("campus", "name")
     .populate("course", "name")
-    .populate("instructorOfClass", "name")
-  .select("-password -refreshToken");
+    .populate("instructorOfClass", "name batch")
+    .select("-password -refreshToken");
   res
     .status(200)
     .json(new apiResponse(200, user, "teacher fetched successfully"));
@@ -246,14 +245,126 @@ const refreshTeacherAccessToken = asyncHandler(async (req, res) => {
 });
 
 const getClasses = asyncHandler(async (req, res) => {
-  
   const classes = await Class.find({ teacher: req.teacher._id });
 
   if (!classes) {
     throw new apiError(404, "Classes not found");
   }
 
-  res.status(200).json(new apiResponse(200, classes, "Classes fetched successfully"));
+  res
+    .status(200)
+    .json(new apiResponse(200, classes, "Classes fetched successfully"));
+});
+
+const updateProfilePicture = asyncHandler(async (req, res) => {
+  const profileLocalPath = req.file?.path;
+
+  if (!profileLocalPath) {
+    throw new apiError(400, "Profile image is required");
+  }
+
+  const profile = await uploadOnCloudinary(profileLocalPath);
+
+  const previousProfile = await Teacher.findById(req.teacher._id).select(
+    "profile"
+  );
+
+  if (previousProfile?.profile) {
+    await deleteFromCloudinary(previousProfile?.profile);
+  }
+
+  if (!profile) {
+    throw new apiError(400, "Profile image upload failed");
+  }
+
+  const updatedProfile = await Teacher.findByIdAndUpdate(
+    req.teacher._id,
+    {
+      profile: profile.secure_url,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedProfile) {
+    throw new apiError(400, "Profile update failed");
+  }
+
+  res
+    .status(200)
+    .json(new apiResponse(200, updatedProfile, "Profile updated successfully"));
+});
+
+const updateProfileDetails = asyncHandler(async (req, res) => {
+  const {
+    fullName,
+    email,
+    phone,
+    gender,
+    username,
+  } = req.body;
+
+  if (
+    [
+      fullName,
+      email,
+      phone,
+      gender,
+      username,
+    ].some((field) => String(field).trim() === "")
+  ) {
+    throw new apiError(400, "All fields are required");
+  }
+
+  const existedUsername = await Teacher.findOne({ username });
+
+  if (existedUsername) {
+    if (existedUsername?._id.toString() !== req.teacher?._id.toString()) {
+      throw new apiError(409, "Username already exists");
+    }
+  }
+
+  const existedEmail = await Teacher.findOne({ email });
+
+  if (existedEmail) {
+    if (existedEmail?._id.toString() !== req.teacher?._id.toString()) {
+      throw new apiError(409, "Email already exists");
+    }
+  }
+
+  const updatedProfileDetails = await Teacher.findByIdAndUpdate(
+    req.teacher._id,
+    {
+      fullName,
+      email,
+      phone,
+      gender,
+      username,
+    },
+    {
+      new: true,
+    }
+  )
+    .populate("city", "cityName")
+    .populate("campus", "name")
+    .populate("course", "name")
+    .populate("instructorOfClass", "name batch")
+    .select("-password -refreshToken");
+
+  if (!updatedProfileDetails) {
+    throw new apiError(400, "Profile update failed");
+  }
+
+  res
+    .status(200)
+    .json(
+      new apiResponse(
+        200,
+        updatedProfileDetails,
+        "Profile updated successfully"
+      )
+    );
 });
 
 export {
@@ -263,4 +374,6 @@ export {
   getCurrentTeacher,
   refreshTeacherAccessToken,
   getClasses,
+  updateProfilePicture,
+  updateProfileDetails,
 };

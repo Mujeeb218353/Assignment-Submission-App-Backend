@@ -39,9 +39,9 @@ const adminSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "City",
     },
-    course: {
+    campus: {
       type: Schema.Types.ObjectId,
-      ref: "Course",
+      ref: "Campus",
     },
     gender: {
       type: String,
