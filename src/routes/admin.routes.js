@@ -19,6 +19,7 @@ import {
 import {
     addCourse,
     getCourse,
+    getAllCourses,
 } from '../controllers/course.controllers.js'
 import {
     addClass,
@@ -53,6 +54,7 @@ router.route('/getCampuses').get(verifyAdminJWT, getCampus)
 
 router.route('/addCourse').post(verifyAdminJWT, addCourse)
 router.route('/getCourses').get(verifyAdminJWT, getCourse)
+router.route('/getAllCourses').get(verifyAdminJWT, getAllCourses)
 
 router.route('/addClass').post(verifyAdminJWT, addClass)
 // router.route('/getClass').get(verifyAdminJWT, getClass)

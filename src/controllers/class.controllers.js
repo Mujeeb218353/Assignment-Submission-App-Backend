@@ -106,7 +106,13 @@ const addClass = asyncHandler(async (req, res) => {
         throw new apiError(500, "Something went wrong while creating class")
     }
 
-    teacher.instructorOfClass.push(newClass._id)
+    if (Array.isArray(teacher.instructorOfClass)) {
+        teacher.instructorOfClass.push(newClass._id)
+      }
+      if (Array.isArray(teacher.campus)) {
+          teacher.campus.push(campusId)
+      }
+
     const savedTeacher = await teacher.save({ validateBeforeSave: false })
 
     if (!savedTeacher) {
@@ -123,7 +129,8 @@ const getTeachersByCourse = asyncHandler(async (req, res) => {
         throw new apiError(400, "Course is required");
     }
 
-    const teachers = await Teacher.find({ course: courseId });
+    const teachers = await Teacher.find({ course: courseId }).select("-password -refreshToken");
+
 
     res.status(200).json(new apiResponse(200, teachers, "Teachers fetched successfully"));
 });

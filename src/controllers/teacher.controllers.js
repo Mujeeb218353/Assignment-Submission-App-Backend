@@ -40,7 +40,6 @@ const registerTeacher = asyncHandler(async (req, res) => {
     gender,
     phoneNumber,
     city,
-    campus,
     course,
     userId,
   } = req.body;
@@ -54,7 +53,6 @@ const registerTeacher = asyncHandler(async (req, res) => {
       gender,
       phoneNumber,
       city,
-      campus,
       course,
     ].some((field) => String(field).trim() === "")
   ) {
@@ -94,7 +92,6 @@ const registerTeacher = asyncHandler(async (req, res) => {
     gender,
     phoneNumber,
     city,
-    campus,
     course,
     createdBy: userId,
   });

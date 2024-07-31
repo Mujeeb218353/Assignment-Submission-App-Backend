@@ -6,16 +6,16 @@ const courseSchema = new Schema(
       type: String,
       required: true
     },
-    campus: {
+    campus: [{
       type: Schema.Types.ObjectId,
       ref: 'Campus',
       required: true
-    },
-    city: {
+    }],
+    city: [{
       type: Schema.Types.ObjectId,
       ref: 'City',
       required: true
-    },
+    }],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "Admin",

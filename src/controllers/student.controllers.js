@@ -324,10 +324,10 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
 
 const updateProfileDetails = asyncHandler(async (req, res) => {
   
-  const { fullName, email, phone, gender, username, lastQualification, CNIC, address, dob } = req.body;
+  const { fullName,fatherName, email, phone, gender, username, lastQualification, CNIC, address, dob } = req.body;
 
   if (
-    [fullName, email, phone, gender, username, lastQualification, CNIC, address, dob].some(
+    [fullName, fatherName, email, phone, gender, username, lastQualification, CNIC, address, dob].some(
       (field) => String(field).trim() === ""
     )
   ) {
@@ -362,6 +362,7 @@ const updateProfileDetails = asyncHandler(async (req, res) => {
     req.student._id,
     {
       fullName,
+      fatherName,
       email,
       phone,
       gender,

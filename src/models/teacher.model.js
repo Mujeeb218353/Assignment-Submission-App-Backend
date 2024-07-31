@@ -36,11 +36,12 @@ const teacherSchema = new Schema(
       ref: "City",
       required: true,
     },
-    campus: {
-      type: Schema.Types.ObjectId,
-      ref: "Campus",
-      required: true,
-    },
+    campus: [
+      { 
+        type: Schema.Types.ObjectId, 
+        ref: "Campus", 
+      }
+    ],
     course: {
       type: Schema.Types.ObjectId,
       ref: "Course",

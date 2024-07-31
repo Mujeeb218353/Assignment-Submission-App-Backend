@@ -5,7 +5,7 @@ const classSchema = new Schema(
         name: {
             type: String,
             required: true,
-            unique: true,
+            unique: true
         },
         enrollmentKey: {
             type: String,

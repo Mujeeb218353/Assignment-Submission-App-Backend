@@ -183,7 +183,7 @@ const refreshAdminAccessToken = asyncHandler(async (req, res) => {
     req.cookies.refreshToken ||
     req.body.refreshToken ||
     req.header("Authorization")?.replace("Bearer ", "");
-
+  console.log(incomingRefreshToken);
   if (!incomingRefreshToken) {
     throw new apiError(401, "unauthorized request");
   }
