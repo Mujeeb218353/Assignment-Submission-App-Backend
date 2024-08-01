@@ -98,9 +98,19 @@ const registerTeacher = asyncHandler(async (req, res) => {
 
   await newTeacher.save();
 
-  const createdTeacher = await Teacher.findById(newTeacher._id).select(
-    "-password -refreshToken"
-  );
+  const createdTeacher = await Teacher.findById(newTeacher._id)
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate("instructorOfClass", "name batch")
+  .populate({
+    path: "createdBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  }).select("-password -refreshToken");
 
   if (!createdTeacher) {
     throw new apiError(500, "Something went wrong while creating user");
@@ -364,6 +374,26 @@ const updateProfileDetails = asyncHandler(async (req, res) => {
     );
 });
 
+const getAllTeachers = asyncHandler(async (req, res) => {
+
+  const teachers = await Teacher.find()
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate("instructorOfClass", "name batch")
+  .populate({
+    path: "createdBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  }).select("-password -refreshToken");
+  
+  res.status(200).json(new apiResponse(200, teachers, "Teachers fetched successfully"));
+
+})
+
 export {
   registerTeacher,
   loginTeacher,
@@ -373,4 +403,5 @@ export {
   getClasses,
   updateProfilePicture,
   updateProfileDetails,
+  getAllTeachers,
 };

@@ -27,6 +27,9 @@ import {
     // getClasses,
     getTeachersByCourse
 } from '../controllers/class.controllers.js'
+import {
+    getAllTeachers,
+} from '../controllers/teacher.controllers.js'
 import { upload } from '../middlewares/multer.middleware.js'
 import { verifyAdminJWT } from '../middlewares/admin.auth.middleware.js'
 
@@ -60,5 +63,6 @@ router.route('/addClass').post(verifyAdminJWT, addClass)
 // router.route('/getClass').get(verifyAdminJWT, getClass)
 // router.route('/getClasses').get(verifyAdminJWT, getClasses)
 router.route('/getTeachersByCourse').get(verifyAdminJWT, getTeachersByCourse)
+router.route('/getAllTeachers').get(verifyAdminJWT, getAllTeachers)
 
 export default router
