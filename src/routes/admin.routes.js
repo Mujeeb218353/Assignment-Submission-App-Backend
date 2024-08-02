@@ -7,6 +7,7 @@ import {
     refreshAdminAccessToken,
     updateProfilePicture,
   updateProfileDetails,
+  getAllAdmins,
 } from '../controllers/admin.controllers.js'
 import {
     getCity, 
@@ -24,7 +25,7 @@ import {
 import {
     addClass,
     // getClass,
-    // getClasses,
+    getAllClasses,
     getTeachersByCourse
 } from '../controllers/class.controllers.js'
 import {
@@ -64,5 +65,8 @@ router.route('/addClass').post(verifyAdminJWT, addClass)
 // router.route('/getClasses').get(verifyAdminJWT, getClasses)
 router.route('/getTeachersByCourse').get(verifyAdminJWT, getTeachersByCourse)
 router.route('/getAllTeachers').get(verifyAdminJWT, getAllTeachers)
+router.route('/getAllAdmins').get(verifyAdminJWT, getAllAdmins)
+router.route('/getAllClasses').get(verifyAdminJWT, getAllClasses)
+
 
 export default router

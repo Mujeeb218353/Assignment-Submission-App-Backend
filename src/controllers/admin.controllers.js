@@ -28,12 +28,28 @@ const generateAccessAndRefreshToken = async (adminId) => {
 };
 
 const registerAdmin = asyncHandler(async (req, res) => {
-  const { fullName, username, email, password, phoneNumber, gender } = req.body;
+  const {
+    fullName,
+    username,
+    email,
+    password,
+    phoneNumber,
+    gender,
+    city,
+    campus,
+  } = req.body;
 
   if (
-    [fullName, username, email, password, phoneNumber, gender].some(
-      (field) => String(field).trim() === ""
-    )
+    [
+      fullName,
+      username,
+      email,
+      password,
+      phoneNumber,
+      gender,
+      city,
+      campus,
+    ].some((field) => String(field).trim() === "")
   ) {
     throw new apiError(400, "All fields are required");
   }
@@ -63,28 +79,25 @@ const registerAdmin = asyncHandler(async (req, res) => {
     password,
     phoneNumber,
     gender,
+    city,
+    campus,
     profile: profile.secure_url,
   });
 
   await newAdmin.save();
 
-  const createdAdmin = await Admin.findById(newAdmin._id).select(
-    "-password -refreshToken"
-  );
+  const createdAdmin = await Admin.findById(newAdmin._id)
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .select("-password -refreshToken");
 
   if (!createdAdmin) {
     throw new apiError(500, "Something went wrong while creating user");
   }
 
-  res.status(201).json(
-    new apiResponse(
-      201,
-      {
-        admin: createdAdmin,
-      },
-      "User created successfully"
-    )
-  );
+  res
+    .status(201)
+    .json(new apiResponse(201, createdAdmin, "User created successfully"));
 });
 
 const loginAdmin = asyncHandler(async (req, res) => {
@@ -161,7 +174,6 @@ const logoutAdmin = asyncHandler(async (req, res) => {
 });
 
 const getCurrentAdmin = asyncHandler(async (req, res) => {
-
   const user = await Admin.findById(req.admin._id)
     .populate({
       path: "city",
@@ -183,7 +195,9 @@ const refreshAdminAccessToken = asyncHandler(async (req, res) => {
     req.cookies.refreshToken ||
     req.body.refreshToken ||
     req.header("Authorization")?.replace("Bearer ", "");
-  console.log(incomingRefreshToken);
+
+  // console.log(incomingRefreshToken);
+
   if (!incomingRefreshToken) {
     throw new apiError(401, "unauthorized request");
   }
@@ -236,9 +250,7 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
 
   const profile = await uploadOnCloudinary(profileLocalPath);
 
-  const previousProfile = await Admin.findById(req.admin._id).select(
-    "profile"
-  );
+  const previousProfile = await Admin.findById(req.admin._id).select("profile");
 
   if (previousProfile?.profile) {
     await deleteFromCloudinary(previousProfile?.profile);
@@ -268,22 +280,12 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
 });
 
 const updateProfileDetails = asyncHandler(async (req, res) => {
-  const {
-    fullName,
-    email,
-    phone,
-    gender,
-    username,
-  } = req.body;
+  const { fullName, email, phone, gender, username } = req.body;
 
   if (
-    [
-      fullName,
-      email,
-      phone,
-      gender,
-      username,
-    ].some((field) => String(field).trim() === "")
+    [fullName, email, phone, gender, username].some(
+      (field) => String(field).trim() === ""
+    )
   ) {
     throw new apiError(400, "All fields are required");
   }
@@ -336,6 +338,16 @@ const updateProfileDetails = asyncHandler(async (req, res) => {
     );
 });
 
+const getAllAdmins = asyncHandler(async (req, res) => {
+  const admins = await Admin.find()
+    .populate("city", "cityName")
+    .populate("campus", "name")
+    .select("-password -refreshToken");
+  res
+    .status(200)
+    .json(new apiResponse(200, admins, "Admins fetched successfully"));
+});
+
 export {
   registerAdmin,
   loginAdmin,
@@ -344,4 +356,5 @@ export {
   refreshAdminAccessToken,
   updateProfilePicture,
   updateProfileDetails,
+  getAllAdmins,
 };

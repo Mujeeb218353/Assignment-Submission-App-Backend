@@ -38,10 +38,12 @@ const adminSchema = new Schema(
     city: {
       type: Schema.Types.ObjectId,
       ref: "City",
+      required: true,
     },
     campus: {
       type: Schema.Types.ObjectId,
       ref: "Campus",
+      required: true,
     },
     gender: {
       type: String,

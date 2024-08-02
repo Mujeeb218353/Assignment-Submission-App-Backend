@@ -191,7 +191,7 @@ const addCourse = asyncHandler(async (req, res) => {
 const getCourse = asyncHandler(async (req, res) => {
   const courses = await Course.find();
 
-  console.log(courses);
+  // console.log(courses);
   res
     .status(200)
     .json(new apiResponse(200, courses, "Courses fetched successfully"));

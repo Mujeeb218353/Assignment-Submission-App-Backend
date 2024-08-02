@@ -123,9 +123,29 @@ const addClass = asyncHandler(async (req, res) => {
     );
   }
 
+  const createdClass = await Class.findById(newClass._id)
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate({
+    path: "createdBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  })
+  .populate({
+    path: "teacher",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+    ],
+  })
+
   res
     .status(201)
-    .json(new apiResponse(201, newClass, "Class created successfully"));
+    .json(new apiResponse(201, createdClass, "Class created successfully"));
 });
 
 const getTeachersByCourse = asyncHandler(async (req, res) => {
@@ -142,18 +162,6 @@ const getTeachersByCourse = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json(new apiResponse(200, teachers, "Teachers fetched successfully"));
-});
-
-const getClass = asyncHandler(async (req, res) => {
-  const savedClass = await Class.findById({ _id: req.params.id })
-    .populate("teacher")
-    .populate("city")
-    .populate("campus")
-    .populate("course")
-    .populate("createdBy");
-  res
-    .status(200)
-    .json(new apiResponse(200, savedClass, "Class fetched successfully"));
 });
 
 const getStudentClass = asyncHandler(async (req, res) => {
@@ -182,4 +190,34 @@ const getStudentClass = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, stdClass, "Class fetched successfully"));
 });
 
-export { addClass, getStudentClass, getTeachersByCourse };
+const getAllClasses = asyncHandler(async (req, res) => {
+  const savedClass = await Class.find()
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate({
+    path: "createdBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  })
+  .populate({
+    path: "teacher",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+    ],
+  })
+  res
+    .status(200)
+    .json(new apiResponse(200, savedClass, "Class fetched successfully"));
+});
+
+export { 
+  addClass, 
+  getStudentClass, 
+  getTeachersByCourse,
+  getAllClasses,
+ };
