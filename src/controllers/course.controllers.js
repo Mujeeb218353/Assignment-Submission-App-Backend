@@ -230,24 +230,24 @@ const getCourse = asyncHandler(async (req, res) => {
 const getAllCourses = asyncHandler(async (req, res) => {
   const courses = await Course.find()
     .populate({
-      path: "city", // Populate the 'city' field in Course model
-      select: "cityName", // Only include the 'cityName' field from the City model
+      path: "city", 
+      select: "cityName",
     })
     .populate({
-      path: "campus", // Populate the 'campus' field in Course model
-      select: "name", // Only include the 'name' field from the Campus model
+      path: "campus",
+      select: "name", 
     })
     .populate({
-      path: "createdBy", // Populate the 'createdBy' field in Course model
-      select: "fullName email phoneNumber gender", // Only include these fields from the Admin model
+      path: "createdBy",
+      select: "fullName email phoneNumber gender",
       populate: [
         {
-          path: "city", // Nested populate for 'city' field within 'createdBy'
-          select: "cityName", // Select only the 'cityName' field from the City model
+          path: "city", 
+          select: "cityName", 
         },
         {
-          path: "campus", // Nested populate for 'campus' field within 'createdBy'
-          select: "name", // Select only the 'name' field from the Campus model
+          path: "campus", 
+          select: "name", 
         },
       ],
     });
@@ -304,7 +304,7 @@ const deleteCourse = asyncHandler(async (req, res) => {
 const deleteCourseCampus = asyncHandler(async (req, res) => {
   const { courseId, campusId } = req.params;
 
-  console.log(courseId, campusId);
+  // console.log(courseId, campusId);
   
 
   const existedCourse = await Course.findById(courseId);
@@ -343,7 +343,7 @@ const deleteCourseCampus = asyncHandler(async (req, res) => {
         ],
       })
 
-      console.log(course);
+      // console.log(course);
 
     res
       .status(200)
@@ -373,7 +373,7 @@ const deleteCourseCampus = asyncHandler(async (req, res) => {
         ],
       })
 
-      console.log(course);
+      // console.log(course);
       
     res
       .status(200)
@@ -445,7 +445,6 @@ const deleteCourseCity = asyncHandler(async (req, res) => {
           { path: "campus", select: "name" },
         ],
       })
-      console.log(course);
 
   res
     .status(200)
