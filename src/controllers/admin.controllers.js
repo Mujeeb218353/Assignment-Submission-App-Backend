@@ -348,6 +348,62 @@ const getAllAdmins = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, admins, "Admins fetched successfully"));
 });
 
+const editAdminCityOrCampus = asyncHandler(async (req, res) => {
+  const { adminId, cityId, campusId } = req.params;
+
+  const admin = await Admin.findById(adminId);
+
+  if (!admin) {
+    throw new apiError(404, "Admin not found");
+  }
+
+  if(cityId === admin.city.toString()) {
+    admin.campus = campusId
+  }else if(campusId === admin.campus.toString()) {
+    admin.city = cityId
+  }else{
+    admin.city = cityId
+    admin.campus = campusId
+  }
+
+  const updatedAdmin = await Admin.findByIdAndUpdate(
+    adminId, 
+    admin, 
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedAdmin) {
+    throw new apiError(400, "Admin update failed");
+  }
+
+  res
+    .status(200)
+    .json(new apiResponse(200, updatedAdmin, "Admin updated successfully"));
+
+})
+
+const deleteAdmin = asyncHandler(async (req, res) => {
+  const { adminId } = req.params;
+
+  const admin = await Admin.findById(adminId);
+
+  if (!admin) {
+    throw new apiError(404, "Admin not found");
+  }
+
+  const deletedAdmin = await Admin.findByIdAndDelete(adminId);
+
+  if (!deletedAdmin) {
+    throw new apiError(400, "Admin deletion failed");
+  }
+
+  res
+    .status(200)
+    .json(new apiResponse(200, null, "Admin deleted successfully"));
+})
+
 export {
   registerAdmin,
   loginAdmin,
@@ -357,4 +413,6 @@ export {
   updateProfilePicture,
   updateProfileDetails,
   getAllAdmins,
+  editAdminCityOrCampus,
+  deleteAdmin,
 };

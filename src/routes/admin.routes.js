@@ -8,6 +8,8 @@ import {
   updateProfilePicture,
   updateProfileDetails,
   getAllAdmins,
+  editAdminCityOrCampus,
+  deleteAdmin,
 } from "../controllers/admin.controllers.js";
 import { getCity, addCity } from "../controllers/city.controller.js";
 import { addCampus, getCampus } from "../controllers/campus.controllers.js";
@@ -72,5 +74,8 @@ router.route("/getAllClasses").get(verifyAdminJWT, getAllClasses);
 
 router.route("/deleteCourseCity/:cityId&:courseId").delete(verifyAdminJWT, deleteCourseCity);
 router.route("/deleteCourseCampus/:campusId&:courseId").delete(verifyAdminJWT,deleteCourseCampus);
+
+router.route('/editAdminCityOrCampus/adminId&:cityId&:campusId').put(verifyAdminJWT, editAdminCityOrCampus)
+router.route("/deleteAdmin/:adminId").delete(verifyAdminJWT, deleteAdmin);
 
 export default router;
