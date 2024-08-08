@@ -36,7 +36,7 @@ const router = Router();
 
 // routes
 
-router.route("/register").post(upload.single("profile"), registerAdmin);
+router.route("/register").post(verifyAdminJWT, upload.single("profile"), registerAdmin);
 router.route("/login").post(loginAdmin);
 
 // secure routes
@@ -75,7 +75,7 @@ router.route("/getAllClasses").get(verifyAdminJWT, getAllClasses);
 router.route("/deleteCourseCity/:cityId&:courseId").delete(verifyAdminJWT, deleteCourseCity);
 router.route("/deleteCourseCampus/:campusId&:courseId").delete(verifyAdminJWT,deleteCourseCampus);
 
-router.route('/editAdminCityOrCampus/adminId&:cityId&:campusId').put(verifyAdminJWT, editAdminCityOrCampus)
+router.route('/editAdminCityOrCampus/:adminId').put(verifyAdminJWT, editAdminCityOrCampus)
 router.route("/deleteAdmin/:adminId").delete(verifyAdminJWT, deleteAdmin);
 
 export default router;

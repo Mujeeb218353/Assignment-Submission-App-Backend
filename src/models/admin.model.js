@@ -56,6 +56,15 @@ const adminSchema = new Schema(
     refreshToken: {
       type: String,
     },
+    createdBy:{
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true
+    },
+    updatedBy:{
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+    }
   },
   {
     timestamps: true,

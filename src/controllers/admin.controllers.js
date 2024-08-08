@@ -72,6 +72,8 @@ const registerAdmin = asyncHandler(async (req, res) => {
     throw new apiError(400, "Profile image upload failed");
   }
 
+  console.log(req.admin);
+  
   const newAdmin = new Admin({
     fullName,
     username,
@@ -82,14 +84,23 @@ const registerAdmin = asyncHandler(async (req, res) => {
     city,
     campus,
     profile: profile.secure_url,
+    createdBy: req.admin._id,
   });
 
   await newAdmin.save();
 
   const createdAdmin = await Admin.findById(newAdmin._id)
-  .populate("city", "cityName")
-  .populate("campus", "name")
-  .select("-password -refreshToken");
+    .populate("city", "cityName")
+    .populate("campus", "name")
+    .populate({
+      path: "createdBy",
+      select: "fullName username email gender phoneNumber",
+      populate: [
+        { path: "city", select: "cityName" },
+        { path: "campus", select: "name" },
+      ],
+    })
+    .select("-password -refreshToken");
 
   if (!createdAdmin) {
     throw new apiError(500, "Something went wrong while creating user");
@@ -268,7 +279,7 @@ const updateProfilePicture = asyncHandler(async (req, res) => {
     {
       new: true,
     }
-  );
+  ).select("profile");
 
   if (!updatedProfile) {
     throw new apiError(400, "Profile update failed");
@@ -342,6 +353,22 @@ const getAllAdmins = asyncHandler(async (req, res) => {
   const admins = await Admin.find()
     .populate("city", "cityName")
     .populate("campus", "name")
+    .populate({
+      path: "createdBy",
+      select: "fullName username email gender phoneNumber",
+      populate: [
+        { path: "city", select: "cityName" },
+        { path: "campus", select: "name" },
+      ],
+    })
+    .populate({
+      path: "updatedBy",
+      select: "fullName username email gender phoneNumber",
+      populate: [
+        { path: "city", select: "cityName" },
+        { path: "campus", select: "name" },
+      ],
+    })
     .select("-password -refreshToken");
   res
     .status(200)
@@ -349,7 +376,9 @@ const getAllAdmins = asyncHandler(async (req, res) => {
 });
 
 const editAdminCityOrCampus = asyncHandler(async (req, res) => {
-  const { adminId, cityId, campusId } = req.params;
+  const { adminId } = req.params;
+  const { cityId, campusId, isVerified } = req.body;
+
 
   const admin = await Admin.findById(adminId);
 
@@ -357,22 +386,44 @@ const editAdminCityOrCampus = asyncHandler(async (req, res) => {
     throw new apiError(404, "Admin not found");
   }
 
-  if(cityId === admin.city.toString()) {
-    admin.campus = campusId
-  }else if(campusId === admin.campus.toString()) {
-    admin.city = cityId
-  }else{
-    admin.city = cityId
-    admin.campus = campusId
+  if (cityId === admin.city.toString()) {
+    admin.campus = campusId;
+  } else if (campusId === admin.campus.toString()) {
+    admin.city = cityId;
+  } else {
+    admin.city = cityId;
+    admin.campus = campusId;
   }
 
-  const updatedAdmin = await Admin.findByIdAndUpdate(
-    adminId, 
-    admin, 
-    {
-      new: true,
-    }
-  );
+  if(req.admin.isVerified === true){
+    admin.isVerified = isVerified;
+  }else{
+    admin.isVerified = false;
+  }
+  admin.updatedBy = req.admin._id;
+
+  const updatedAdmin = await Admin.findByIdAndUpdate(adminId, admin, {
+    new: true,
+  })
+    .populate("city", "cityName")
+    .populate("campus", "name")
+    .populate({
+      path: "createdBy",
+      select: "fullName email phoneNumber gender",
+      populate: [
+        { path: "city", select: "cityName" },
+        { path: "campus", select: "name" },
+      ],
+    })
+    .populate({
+      path: "updatedBy",
+      select: "fullName email phoneNumber gender",
+      populate: [
+        { path: "city", select: "cityName" },
+        { path: "campus", select: "name" },
+      ]
+    })
+    .select("-password -refreshToken");
 
   if (!updatedAdmin) {
     throw new apiError(400, "Admin update failed");
@@ -381,8 +432,7 @@ const editAdminCityOrCampus = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json(new apiResponse(200, updatedAdmin, "Admin updated successfully"));
-
-})
+});
 
 const deleteAdmin = asyncHandler(async (req, res) => {
   const { adminId } = req.params;
@@ -402,7 +452,7 @@ const deleteAdmin = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json(new apiResponse(200, null, "Admin deleted successfully"));
-})
+});
 
 export {
   registerAdmin,
