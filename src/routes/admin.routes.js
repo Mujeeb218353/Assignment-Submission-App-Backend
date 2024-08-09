@@ -8,7 +8,7 @@ import {
   updateProfilePicture,
   updateProfileDetails,
   getAllAdmins,
-  editAdminCityOrCampus,
+  editAdminCityOrCampusOrVerification,
   deleteAdmin,
 } from "../controllers/admin.controllers.js";
 import { getCity, addCity } from "../controllers/city.controller.js";
@@ -28,7 +28,11 @@ import {
   getAllClasses,
   getTeachersByCourse,
 } from "../controllers/class.controllers.js";
-import { getAllTeachers } from "../controllers/teacher.controllers.js";
+import { 
+  getAllTeachers,
+  editTeacherVerification,
+  deleteTeacher,
+ } from "../controllers/teacher.controllers.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyAdminJWT } from "../middlewares/admin.auth.middleware.js";
 
@@ -75,7 +79,10 @@ router.route("/getAllClasses").get(verifyAdminJWT, getAllClasses);
 router.route("/deleteCourseCity/:cityId&:courseId").delete(verifyAdminJWT, deleteCourseCity);
 router.route("/deleteCourseCampus/:campusId&:courseId").delete(verifyAdminJWT,deleteCourseCampus);
 
-router.route('/editAdminCityOrCampus/:adminId').put(verifyAdminJWT, editAdminCityOrCampus)
+router.route('/editAdminCityOrCampusOrVerification/:adminId').put(verifyAdminJWT, editAdminCityOrCampusOrVerification)
 router.route("/deleteAdmin/:adminId").delete(verifyAdminJWT, deleteAdmin);
+
+router.route("/editTeacherVerification/:teacherId").put(verifyAdminJWT, editTeacherVerification);
+router.route("/deleteTeacher/:teacherId").delete(verifyAdminJWT, deleteTeacher);
 
 export default router;

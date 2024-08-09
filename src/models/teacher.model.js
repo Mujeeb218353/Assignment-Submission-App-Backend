@@ -78,6 +78,10 @@ const teacherSchema = new Schema(
       ref: "Admin",
       required: true,
     },
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+    },
     isVerified: {
       type: Boolean,
       default: false,

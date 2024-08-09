@@ -375,7 +375,7 @@ const getAllAdmins = asyncHandler(async (req, res) => {
     .json(new apiResponse(200, admins, "Admins fetched successfully"));
 });
 
-const editAdminCityOrCampus = asyncHandler(async (req, res) => {
+const editAdminCityOrCampusOrVerification = asyncHandler(async (req, res) => {
   const { adminId } = req.params;
   const { cityId, campusId, isVerified } = req.body;
 
@@ -463,6 +463,6 @@ export {
   updateProfilePicture,
   updateProfileDetails,
   getAllAdmins,
-  editAdminCityOrCampus,
+  editAdminCityOrCampusOrVerification,
   deleteAdmin,
 };

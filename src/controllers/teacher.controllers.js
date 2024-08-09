@@ -102,7 +102,22 @@ const registerTeacher = asyncHandler(async (req, res) => {
   .populate("city", "cityName")
   .populate("campus", "name")
   .populate("course", "name")
-  .populate("instructorOfClass", "name batch")
+  .populate({
+    path:"instructorOfClass", 
+    select:"name batch", 
+    populate: [
+      { 
+        path: "campus",
+        select: "name",
+        populate: [
+          {
+            path: "city",
+            select: "cityName"
+          }
+        ]
+      }
+    ]
+  })
   .populate({
     path: "createdBy",
     select: "fullName email phoneNumber gender",
@@ -110,7 +125,16 @@ const registerTeacher = asyncHandler(async (req, res) => {
       { path: "city", select: "cityName" },
       { path: "campus", select: "name" },
     ],
-  }).select("-password -refreshToken");
+  })
+  .populate({
+    path: "updatedBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  })
+  .select("-password -refreshToken");
 
   if (!createdTeacher) {
     throw new apiError(500, "Something went wrong while creating user");
@@ -380,7 +404,22 @@ const getAllTeachers = asyncHandler(async (req, res) => {
   .populate("city", "cityName")
   .populate("campus", "name")
   .populate("course", "name")
-  .populate("instructorOfClass", "name batch")
+  .populate({
+    path:"instructorOfClass", 
+    select:"name batch", 
+    populate: [
+      { 
+        path: "campus",
+        select: "name",
+        populate: [
+          {
+            path: "city",
+            select: "cityName"
+          }
+        ]
+      }
+    ]
+  })
   .populate({
     path: "createdBy",
     select: "fullName email phoneNumber gender",
@@ -388,10 +427,101 @@ const getAllTeachers = asyncHandler(async (req, res) => {
       { path: "city", select: "cityName" },
       { path: "campus", select: "name" },
     ],
-  }).select("-password -refreshToken");
+  })
+  .populate({
+    path: "updatedBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  })
+  .select("-password -refreshToken");
   
   res.status(200).json(new apiResponse(200, teachers, "Teachers fetched successfully"));
 
+})
+
+const editTeacherVerification = asyncHandler(async (req, res) => {
+  const { teacherId } = req.params;
+  const { isVerified } = req.body;
+
+  if (!teacherId) {
+    throw new apiError(400, "Teacher id is required");
+  }
+
+  const teacher = await Teacher.findByIdAndUpdate(
+    {
+      _id: teacherId,
+    },
+    {
+      isVerified,
+      updatedBy: req.admin._id,
+    },
+    {
+      new: true,
+    }
+  )
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate({
+    path:"instructorOfClass", 
+    select:"name batch", 
+    populate: [
+      { 
+        path: "campus",
+        select: "name",
+        populate: [
+          {
+            path: "city",
+            select: "cityName"
+          }
+        ]
+      }
+    ]
+  })
+  .populate({
+    path: "createdBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  })
+  .populate({
+    path: "updatedBy",
+    select: "fullName email phoneNumber gender",
+    populate: [
+      { path: "city", select: "cityName" },
+      { path: "campus", select: "name" },
+    ],
+  })
+  .select("-password -refreshToken");
+
+  if (!teacher) {
+    throw new apiError(404, "Teacher not found");
+  }
+
+  res.status(200).json(new apiResponse(200, teacher, "Teacher updated successfully"));
+})
+
+const deleteTeacher = asyncHandler(async (req, res) => {
+  const { teacherId } = req.params;
+
+  if (!teacherId) {
+    throw new apiError(400, "Teacher id is required");
+  }
+
+  const teacher = await Teacher.findByIdAndDelete({
+    _id: teacherId,
+  });
+
+  if (!teacher) {
+    throw new apiError(404, "Teacher not found");
+  }
+
+  res.status(200).json(new apiResponse(200, null, "Teacher deleted successfully"));
 })
 
 export {
@@ -404,4 +534,6 @@ export {
   updateProfilePicture,
   updateProfileDetails,
   getAllTeachers,
+  editTeacherVerification,
+  deleteTeacher,
 };

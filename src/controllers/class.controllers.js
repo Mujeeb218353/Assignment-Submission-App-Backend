@@ -206,9 +206,6 @@ const getAllClasses = asyncHandler(async (req, res) => {
   .populate({
     path: "teacher",
     select: "fullName email phoneNumber gender",
-    populate: [
-      { path: "city", select: "cityName" },
-    ],
   })
   res
     .status(200)
