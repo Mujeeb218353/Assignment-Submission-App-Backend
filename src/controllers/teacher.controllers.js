@@ -513,9 +513,7 @@ const deleteTeacher = asyncHandler(async (req, res) => {
     throw new apiError(400, "Teacher id is required");
   }
 
-  const teacher = await Teacher.findByIdAndDelete({
-    _id: teacherId,
-  });
+  const teacher = await Teacher.findByIdAndDelete(teacherId);
 
   if (!teacher) {
     throw new apiError(404, "Teacher not found");

@@ -49,7 +49,7 @@ const classSchema = new Schema(
         },
         updatedBy:{
             type: Schema.Types.ObjectId,
-            ref: "Admin" || "Teacher",
+            ref: "Admin",
             default: null
         },
         isCompleted: {

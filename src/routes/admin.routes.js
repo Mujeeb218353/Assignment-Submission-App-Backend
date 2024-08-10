@@ -27,6 +27,8 @@ import {
   // getClass,
   getAllClasses,
   getTeachersByCourse,
+  editClass,
+  deleteClass,
 } from "../controllers/class.controllers.js";
 import { 
   getAllTeachers,
@@ -84,5 +86,8 @@ router.route("/deleteAdmin/:adminId").delete(verifyAdminJWT, deleteAdmin);
 
 router.route("/editTeacherVerification/:teacherId").put(verifyAdminJWT, editTeacherVerification);
 router.route("/deleteTeacher/:teacherId").delete(verifyAdminJWT, deleteTeacher);
+
+router.route("/editClass/:classId").put(verifyAdminJWT, editClass);
+router.route("/deleteClass/:classId").delete(verifyAdminJWT, deleteClass);
 
 export default router;
