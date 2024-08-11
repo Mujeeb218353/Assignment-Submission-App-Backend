@@ -30,7 +30,7 @@ router.route('/login').post(loginTeacher)
 // secure routes
 router.route('/logout').post(verifyTeacherJWT, logoutTeacher)
 router.route('/getCurrentTeacher').get(verifyTeacherJWT, getCurrentTeacher)
-router.route('/refreshTeacherAccessToken').get(refreshTeacherAccessToken)
+router.route('/refreshTeacherAccessToken').post(refreshTeacherAccessToken)
 router.route('/getClasses').get(verifyTeacherJWT, getClasses)
 
 router.route('/updateTeacherProfilePicture').put(verifyTeacherJWT, upload.single('profile'), updateProfilePicture)
