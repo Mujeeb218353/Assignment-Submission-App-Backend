@@ -35,6 +35,11 @@ import {
   editTeacherVerification,
   deleteTeacher,
  } from "../controllers/teacher.controllers.js";
+import { 
+  getAllStudents,
+  editStudent,
+  deleteStudent, 
+} from "../controllers/student.controllers.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyAdminJWT } from "../middlewares/admin.auth.middleware.js";
 
@@ -89,5 +94,9 @@ router.route("/deleteTeacher/:teacherId").delete(verifyAdminJWT, deleteTeacher);
 
 router.route("/editClass/:classId").put(verifyAdminJWT, editClass);
 router.route("/deleteClass/:classId").delete(verifyAdminJWT, deleteClass);
+
+router.route("/getAllStudents").get(verifyAdminJWT, getAllStudents);
+router.route("/editStudent/:studentId").put(verifyAdminJWT, editStudent);
+router.route("/deleteStudent/:studentId").delete(verifyAdminJWT, deleteStudent);
 
 export default router;

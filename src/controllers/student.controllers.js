@@ -224,10 +224,10 @@ const getCurrentStudent = asyncHandler(async (req, res) => {
     .populate({
       path: "enrolledInClass",
       select: "batch name",
-      populate: {
+      populate: [{
         path: "teacher",
         select: "fullName",
-      },
+      }],
     })
     .select("-password -refreshToken");
 
@@ -382,10 +382,10 @@ const updateProfileDetails = asyncHandler(async (req, res) => {
   .populate({
     path: "enrolledInClass",
     select: "batch name",
-    populate: {
+    populate: [{
       path: "teacher",
       select: "fullName",
-    },
+    }],
   })
   .select("-password -refreshToken");
 
@@ -397,6 +397,77 @@ const updateProfileDetails = asyncHandler(async (req, res) => {
 
 });
 
+const getAllStudents = asyncHandler(async (req, res) => {
+
+  const students = await Student.find()
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate({
+    path: "enrolledInClass",
+    select: "name batch",
+    populate: [{
+      path: "teacher",
+      select: "fullName",
+    }]
+  }).select("-password -refreshToken")
+
+  res.status(200).json(new apiResponse(200, students, "Students fetched successfully"));
+
+})
+
+const editStudent = asyncHandler(async (req, res) => {
+  const { studentTd } = req.params
+  const { isVerified } = req.body
+
+  if(!studentTd){
+    throw new apiError(400, "Student is required")
+  }
+
+  const student = await Student.findById(studentId)
+
+  if(!student){
+    throw new apiError(404, "Student not found")
+  }
+
+  student.isVerified = isVerified
+
+  const updatedStudent = await student.save({ validateBeforeSave: false })
+
+  if(!updatedStudent){
+    throw new apiError(400, "Some went wrong while updating student")
+  }
+
+  res.status(200).json(new apiResponse(200, updatedStudent, "Students updated successfully"));
+})
+
+const deleteStudent = asyncHandler(async (req, res) => {
+
+  const { studentTd } = req.params
+
+  if(!studentTd){
+    throw new apiError(401, "Student is required")
+  }
+
+  const student = await Student.findById(studentId)
+
+  if(!student){
+    throw new apiError(404, "Student not found")
+  }
+
+  if(student.enrolledInClass !== null){
+    throw new apiError(404, "Student will not be deleted because he/she enrolled in class")
+  }
+
+  const deletedStudent = await Student.findByIdAndDelete(studentId)
+
+  if(!deletedStudent){
+    throw new apiError(400, "Some went wrong while deleting student")
+  }
+
+  res.status(200).json(new apiResponse(200, null, "Students deleted successfully"));
+})
+
 export {
   registerStudent,
   loginStudent,
@@ -405,4 +476,7 @@ export {
   refreshStudentAccessToken,
   updateProfilePicture,
   updateProfileDetails,
+  getAllStudents,
+  editStudent,
+  deleteStudent,
 };
