@@ -417,22 +417,33 @@ const getAllStudents = asyncHandler(async (req, res) => {
 })
 
 const editStudent = asyncHandler(async (req, res) => {
-  const { studentTd } = req.params
+  const { studentId } = req.params
   const { isVerified } = req.body
 
-  if(!studentTd){
+  if(!studentId){
     throw new apiError(400, "Student is required")
   }
 
-  const student = await Student.findById(studentId)
-
-  if(!student){
-    throw new apiError(404, "Student not found")
-  }
-
-  student.isVerified = isVerified
-
-  const updatedStudent = await student.save({ validateBeforeSave: false })
+  const updatedStudent = await Student.findByIdAndUpdate(
+    studentId,
+    {
+      isVerified
+    },
+    {
+      new: true
+    }
+  )
+  .populate("city", "cityName")
+  .populate("campus", "name")
+  .populate("course", "name")
+  .populate({
+    path: "enrolledInClass",
+    select: "name batch",
+    populate: [{
+      path: "teacher",
+      select: "fullName",
+    }]
+  }).select("-password -refreshToken")
 
   if(!updatedStudent){
     throw new apiError(400, "Some went wrong while updating student")
@@ -443,9 +454,9 @@ const editStudent = asyncHandler(async (req, res) => {
 
 const deleteStudent = asyncHandler(async (req, res) => {
 
-  const { studentTd } = req.params
+  const { studentId } = req.params
 
-  if(!studentTd){
+  if(!studentId){
     throw new apiError(401, "Student is required")
   }
 
@@ -459,7 +470,7 @@ const deleteStudent = asyncHandler(async (req, res) => {
     throw new apiError(404, "Student will not be deleted because he/she enrolled in class")
   }
 
-  const deletedStudent = await Student.findByIdAndDelete(studentId)
+  const deletedStudent = await student.deleteOne()
 
   if(!deletedStudent){
     throw new apiError(400, "Some went wrong while deleting student")

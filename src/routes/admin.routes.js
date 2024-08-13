@@ -96,7 +96,7 @@ router.route("/editClass/:classId").put(verifyAdminJWT, editClass);
 router.route("/deleteClass/:classId").delete(verifyAdminJWT, deleteClass);
 
 router.route("/getAllStudents").get(verifyAdminJWT, getAllStudents);
-router.route("/editStudent/:studentId").put(verifyAdminJWT, editStudent);
+router.route("/editStudentVerification/:studentId").put(verifyAdminJWT, editStudent);
 router.route("/deleteStudent/:studentId").delete(verifyAdminJWT, deleteStudent);
 
 export default router;
