@@ -15,10 +15,6 @@ app.listen(PORT, () => {
     console.log(`Server started on port http://localhost:${PORT}`);
 });
 
-<<<<<<< HEAD
 connectDB();
 
 export default app
-=======
-connectDB();
->>>>>>> origin/main
