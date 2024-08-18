@@ -7,7 +7,11 @@
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
   "keywords": [
+<<<<<<< HEAD
     "Assignment Submission Application",
+=======
+    "e-commerce",
+>>>>>>> origin/main
     "backend",
     "nodejs",
     "expressjs",
@@ -15,7 +19,11 @@
   ],
   "author": "Mujeeb Ur Rehman",
   "license": "ISC",
+<<<<<<< HEAD
   "description": "This is a Assignment Submission Application",
+=======
+  "description": "This is a e-commerce website",
+>>>>>>> origin/main
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.2.0",
