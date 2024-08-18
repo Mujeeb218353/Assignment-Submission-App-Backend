@@ -17,4 +17,8 @@ app.listen(PORT, () => {
 
 connectDB();
 
+<<<<<<< HEAD
 export default app
+=======
+export default app
+>>>>>>> 2cac168 (changed index.js)
