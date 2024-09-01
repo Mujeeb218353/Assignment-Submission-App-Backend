@@ -1,6 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { apiError } from "../utils/apiError.js";
 import { Student } from "../models/student.model.js";
+import { Class } from "../models/class.model.js";
+import { Assignment } from "../models/assignment.model.js";
 import {
   uploadOnCloudinary,
   deleteFromCloudinary,
@@ -479,6 +481,59 @@ const deleteStudent = asyncHandler(async (req, res) => {
   res.status(200).json(new apiResponse(200, null, "Students deleted successfully"));
 })
 
+const getStudentsByClass = asyncHandler(async (req, res) => {
+
+  const studentsPerformance = await Class.findById(req.params.classId)  
+  .populate({
+    path: "students",
+    select: "rollNo fullName fatherName email phone CNIC address",
+  })
+  .select("name batch enrollmentKey");
+
+  res.status(200).json(new apiResponse(200, studentsPerformance, "Students fetched successfully"));
+
+})
+
+const getStudentPerformance = asyncHandler(async (req, res) => {
+  const { classId, studentId } = req.params;
+
+  if (!classId || !studentId) {
+    throw new apiError(400, "Class and student are required");
+  }
+
+  const classData = await Class.findById(classId).select('assignments');
+  const totalAssignments = classData.assignments.length;
+
+  const assignments = await Assignment.find({
+    className: classId,
+    'submittedBy.studentId': studentId
+  }).select('title description submittedBy.$');
+
+  const submittedAssignmentsCount = assignments.length;
+
+  const studentData = await Student.findById(studentId).select('rollNo fullName email profile phone fatherName');
+
+  const performanceData = {
+    totalAssignments,
+    submittedAssignmentsCount,
+    studentInfo: studentData,
+    submittedAssignments: assignments.map(assignment => {
+      const { marks, link, submissionDate } = assignment.submittedBy[0];
+      return {
+        title: assignment.title,
+        description: assignment.description,
+        marks,
+        link,
+        submissionDate
+      };
+    })
+  };
+
+  res.status(200).json(new apiResponse(200, performanceData, "Performance fetched successfully"));
+});
+
+
+
 export {
   registerStudent,
   loginStudent,
@@ -490,4 +545,6 @@ export {
   getAllStudents,
   editStudent,
   deleteStudent,
+  getStudentsByClass,
+  getStudentPerformance,
 };

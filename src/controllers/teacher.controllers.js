@@ -276,7 +276,8 @@ const refreshTeacherAccessToken = asyncHandler(async (req, res) => {
 });
 
 const getClasses = asyncHandler(async (req, res) => {
-  const classes = await Class.find({ teacher: req.teacher._id });
+  const classes = await Class.find({ teacher: req.teacher._id })
+  .select("name")
 
   if (!classes) {
     throw new apiError(404, "Classes not found");
