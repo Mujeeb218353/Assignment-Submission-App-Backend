@@ -497,6 +497,9 @@ const getStudentsByClass = asyncHandler(async (req, res) => {
 const getStudentPerformance = asyncHandler(async (req, res) => {
   const { classId, studentId } = req.params;
 
+  console.log(classId, studentId);
+  
+
   if (!classId || !studentId) {
     throw new apiError(400, "Class and student are required");
   }
@@ -511,7 +514,7 @@ const getStudentPerformance = asyncHandler(async (req, res) => {
 
   const submittedAssignmentsCount = assignments.length;
 
-  const studentData = await Student.findById(studentId).select('rollNo fullName email profile phone fatherName');
+  const studentData = await Student.findById(studentId).select('rollNo fullName email profile phone fatherName address CNIC username dob');
 
   const performanceData = {
     totalAssignments,
