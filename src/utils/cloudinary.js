@@ -27,14 +27,26 @@ const uploadOnCloudinary = async (localFilePath) => {
 }
 
 const deleteFromCloudinary = async (public_id) => {
-    try {
-        if(!public_id) return null
-        const res = await cloudinary.uploader.destroy(public_id);
-        return res;
-    } catch (error) {
-        console.log("ERROR DELETING FROM CLOUDINARY:",error);
-        return null;
+  const parts = public_id.split("/");
+  const fileName = parts[parts.length - 1];
+  const publicId = fileName.split(".")[0];
+  try {
+    if (!publicId) return null;
+    const res = await cloudinary.uploader.destroy(publicId);
+    if (res.result === "ok") {
+      console.log("Successfully deleted from Cloudinary:", res);
+      return res;
+    } else if (res.result === "not found") {
+      console.log("File not found on Cloudinary:", publicId);
+      return res;
+    } else {
+      console.log("Unexpected Cloudinary response:", res);
+      return res;
     }
+  } catch (error) {
+    console.log("ERROR DELETING FROM CLOUDINARY:", error);
+    return null;
+  }
 };
 
 export { uploadOnCloudinary, deleteFromCloudinary };
